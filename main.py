@@ -38,7 +38,15 @@ def smith_waterman(seq1, seq2, match = 2, mismatch = -2, gap_penalty = -1):
 
             score_matrix[i][j] = max(0, match_score, delete_score, insert_score) # comparison and choosing the highest value
             # 0 as possibility is the difference between smith-waterman and wunsch-needleman algorithm
+    # tracking back implementation
+            # 1. update max_score
+            if score_matrix[i][j] < max_score:
+                max_score = score_matrix[i][j]
+                max_row, max_col = i, j
 
+    # 2. tracebacking as in iterating through
+
+    # returning values
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
