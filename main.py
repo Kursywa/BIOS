@@ -11,7 +11,7 @@ def main():
         print(seq1)
         reader.close()
     with open(argument2 + ".txt", "r") as reader:  # reading second sequence
-        seq2 = "".join(reader.readlines())
+        seq2 = "".join(reader.readlines())  # converting to strings cause readlines() reads lines as list of strings
         print(seq2)
         reader.close()
     alignment, alignment_score = smith_waterman(seq1, seq2)
