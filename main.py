@@ -6,12 +6,17 @@ import sys
 def main():
     argument1 = sys.argv[1]
     argument2 = sys.argv[2]
-    with open(argument1 + ".txt", "r") as reader:  # reading first sequence
-        seq1 = "".join(reader.readlines())
+    seq1, seq2 = "", ""
+    with open(argument1 + ".fasta", "r") as reader:  # reading first sequence
+        for line in reader:
+            if not line.startswith(">"):  # adapted to work with FASTA files
+                seq1 += line
         print(seq1)
         reader.close()
-    with open(argument2 + ".txt", "r") as reader:  # reading second sequence
-        seq2 = "".join(reader.readlines())  # converting to strings cause readlines() reads lines as list of strings
+    with open(argument2 + ".fasta", "r") as reader:  # reading second sequence
+        for line in reader:
+            if not line.startswith(">"):
+                seq2 += line
         print(seq2)
         reader.close()
     alignment, alignment_score = smith_waterman(seq1, seq2)
