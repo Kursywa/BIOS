@@ -6,19 +6,8 @@ import sys
 def main():
     argument1 = sys.argv[1]
     argument2 = sys.argv[2]
-    seq1, seq2 = "", ""
-    with open(argument1 + ".fasta", "r") as reader:  # reading first sequence
-        for line in reader:
-            if not line.startswith(">"):  # adapted to work with FASTA files
-                seq1 += line
-        print(seq1)
-        reader.close()
-    with open(argument2 + ".fasta", "r") as reader:  # reading second sequence
-        for line in reader:
-            if not line.startswith(">"):
-                seq2 += line
-        print(seq2)
-        reader.close()
+    seq1 = opening_fasta(argument1)
+    seq2 = opening_fasta(argument2)
     alignment, alignment_score = smith_waterman(seq1, seq2)
     print("Max score of alignment: ", alignment_score)
     print("alignment 1: ", alignment[0])
@@ -29,10 +18,10 @@ def main():
         writer.close()
 
 
-
-def smith_waterman(seq1, seq2, match = 2, mismatch = -2, gap_penalty = -1):
+def smith_waterman(seq1, seq2, match=2, mismatch=-2, gap_penalty=-1):
     rows, cols = len(seq1) + 1, len(seq2) + 1
-    score_matrix = [[0 for _ in range(cols)] for _ in range(rows)]  # initializing a matrix that holds both sequences plus
+    score_matrix = [[0 for _ in range(cols)] for _ in
+                    range(rows)]  # initializing a matrix that holds both sequences plus
     # initial null column and row and fills them with zeros
 
     # initializing variables that hold information about maximum score
@@ -43,16 +32,17 @@ def smith_waterman(seq1, seq2, match = 2, mismatch = -2, gap_penalty = -1):
     for i in range(1, rows):
         for j in range(1, cols):
             if seq1[i - 1] == seq2[j - 1]:
-                match_score = score_matrix[i-1][j-1] + match
+                match_score = score_matrix[i - 1][j - 1] + match
             else:
-                match_score = score_matrix[i-1][j-1] + mismatch
+                match_score = score_matrix[i - 1][j - 1] + mismatch
 
-            delete_score = score_matrix[i-1][j] + gap_penalty # according to seq1 -> rows vertical
-            insert_score = score_matrix[i][j-1] + gap_penalty  # according to seq2 -> cols horizontal
+            delete_score = score_matrix[i - 1][j] + gap_penalty  # according to seq1 -> rows vertical
+            insert_score = score_matrix[i][j - 1] + gap_penalty  # according to seq2 -> cols horizontal
 
-            score_matrix[i][j] = max(0, match_score, delete_score, insert_score) # comparison and choosing the highest value
+            score_matrix[i][j] = max(0, match_score, delete_score,
+                                     insert_score)  # comparison and choosing the highest value
             # 0 as possibility is the difference between smith-waterman and wunsch-needleman algorithm
-    # tracking back implementation
+            # tracking back implementation
             # 1. update max_score
             if score_matrix[i][j] > max_score:
                 max_score = score_matrix[i][j]
@@ -61,27 +51,42 @@ def smith_waterman(seq1, seq2, match = 2, mismatch = -2, gap_penalty = -1):
     # 2. tracebacking as in iterating through
     alignment1 = []
     alignment2 = []  # declaring arrays that holds alignments of respective sequences
-    i,j = max_row, max_col  # setting up iterators to max_score
+    i, j = max_row, max_col  # setting up iterators to max_score
 
     while score_matrix[i][j] != 0:  # seeking whether score comes from diagonal match/mismatch or from indel gap
-        if score_matrix[i][j] == score_matrix[i-1][j-1] + (match if seq1[i-1] == seq2[j-1] else mismatch):  # checking diagonally
-            alignment1.insert(0, seq1[i-1])  # always adding at the beginning so chars added first will be pushed
-            alignment2.insert(0, seq2[j-1])  # to the end
+        if score_matrix[i][j] == score_matrix[i - 1][j - 1] + (match if seq1[i - 1] == seq2[j - 1] else mismatch):
+            # checking diagonally
+            alignment1.insert(0, seq1[i - 1])  # always adding at the beginning so chars added first will be pushed
+            alignment2.insert(0, seq2[j - 1])  # to the end
             i -= 1
             j -= 1  # updating iterators
-        elif score_matrix[i][j] == score_matrix[i-1][j] + gap_penalty:  # going vertical so deletion for seq1 compared to seq2
-            alignment1.insert(0, seq1[i-1])
+        elif score_matrix[i][j] == score_matrix[i - 1][j] + gap_penalty:
+            # going vertical so deletion for seq1 compared to seq2
+            alignment1.insert(0, seq1[i - 1])
             alignment2.insert(0, "-")  # "-" symbolizes deletion for particular alignment
             i -= 1
         # algorithm prioritizes deletions over insertion if the same score is present for both of these options
         else:  # going horizontal so insertion for seq1 compared to seq2
             alignment1.insert(0, "-")  #
-            alignment2.insert(0, seq2[j-1])
+            alignment2.insert(0, seq2[j - 1])
             j -= 1
 
     # 3. returning the best alignment and its score
     best_alignment = ("".join(alignment1), "".join(alignment2))
     return best_alignment, max_score  # passing two arguments as results
+
+
+def opening_fasta(argument):
+    seq = ""
+    with open(argument + ".fasta", "r") as reader:  # reading first sequence
+        for line in reader:
+            if not line.startswith(">"):  # adapted to work with FASTA files
+                seq += line
+        reader.close()
+    print(seq)
+    return seq
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
