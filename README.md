@@ -1,4 +1,4 @@
-# BIOS_Project1
+# SMITH-WATERMAN ALGORITHM
   By użyć stworzonego przez nas algorytmu należy otworzyć terminal i ustawić folder docelowy jako projektowy.
   Następnie za pomocą komendy
   
